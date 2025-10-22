@@ -638,253 +638,236 @@ educat sex;
 
 */ Data Analysis;
 
-ods excel file="C:\Users\amari\OneDrive - Tulane University\Graduate Courses\ILE\Lupus_Analysis_Results_Clean.xlsx"
+ods excel file="C:\Users\amari\OneDrive - Tulane University\Graduate Courses\ILE\ILE_Analysis_Results.xlsx"
          options(sheet_interval='proc' embedded_titles='yes');
 
-*/ Descriptive Statistics;
+/* Formats for readability */
+proc format;
+  value sexf 1='Woman' 2='Man';
+  value racef 1='Black' 2='White' 3='Other';
+  value insf  1='Private' 2='Public' 3='Uninsured';
+run;
 
+/* ===========================
+   1. Descriptive Statistics
+   =========================== */
 ods excel options(sheet_name="1_Descriptives" sheet_interval='proc');
 
 proc freq data=leap_long_final;
-    where visit_index=1 and complete=1;
-    tables sex / nocum nopercent;
-    tables race / nocum nopercent;
-    title "Baseline Frequency Table: Sex";
+  where visit_index=1 and complete=1;
+  tables sex / nocum nopercent;
+  format sex sexf.;
+  title "Baseline Frequency Table: Sex";
 run;
 
 proc freq data=leap_long_final;
-    where visit_index=1 and complete=1;
-    tables insurance / nocum nopercent;
-    title "Insurance Status at Baseline";
+  where visit_index=1 and complete=1;
+  tables race / nocum nopercent;
+  format race racef.;
+  title "Baseline Frequency Table: Race";
+run;
+
+proc freq data=leap_long_final;
+  where visit_index=1 and complete=1;
+  tables insurance / nocum nopercent;
+  format insurance insf.;
+  title "Insurance Status at Baseline";
 run;
 
 proc means data=leap_long_final n mean stddev;
-    where visit_index=1 and complete=1;
-    var age;
-    title "Mean and SD of Age at Baseline";
+  where visit_index=1 and complete=1;
+  var age;
+  title "Mean and SD of Age at Baseline";
 run;
 
-/* Frequency table of sex with both count and row percent */
-proc freq data=leap_long_final;
-    where visit_index=1 and complete=1;
-    tables sex / out=sexfreq (keep=sex count percent);
-    title "Sex: Count and Percent at Baseline";
-run;
-
-proc print data=sexfreq label;
-    var sex count percent;
-    format percent 5.1;
-    label sex='Sex' count='N' percent='Percent';
-    title "Sex - Baseline N (%)";
-run;
-
-/* Frequency table for race */
-proc freq data=leap_long_final;
-    where visit_index=1 and complete=1;
-    tables race / out=racefreq (keep=race count percent);
-    title "Race: Count and Percent at Baseline";
-run;
-
-proc print data=racefreq label;
-    var race count percent;
-    format percent 5.1;
-    label race='Race' count='N' percent='Percent';
-    title "Race - Baseline N (%)";
-run;
-
-/* Frequency and percent for insurance */
-proc freq data=leap_long_final;
-    where visit_index=1 and complete=1;
-    tables insurance / out=insfreq (keep=insurance count percent);
-    title "Insurance Status: Count and Percent at Baseline";
-run;
-
-proc print data=insfreq label;
-    var insurance count percent;
-    format percent 5.1;
-    label insurance='Insurance' count='N' percent='Percent';
-    title "Insurance - Baseline N (%)";
-run;
-
-*/Bivariate Analysis;
-
+/* ===========================
+   2. Bivariate Analysis
+   =========================== */
 ods excel options(sheet_name="2_Bivariate" sheet_interval='proc');
 
 proc corr data=leap_long_final;
-    where visit_index=1 and complete=1;
-    var slaq_a age diag_yrs hhinc vers_avg bild_sum;
-    title "Correlation Analysis";
+  where visit_index=1 and complete=1;
+  var slaq_a age diag_yrs hhinc vers_avg bild_sum;
+  title "Correlation Analysis";
 run;
 
 proc ttest data=leap_long_final;
-    where visit_index=1 and complete=1;
-    var slaq_a;
-    class sex;
-    title "SLAQ by Sex";
+  where visit_index=1 and complete=1;
+  var slaq_a;
+  class sex;
+  title "SLAQ by Sex";
 run;
 
-proc anova data=leap_long_final;
-    where visit_index=1 and complete=1;
-    class race;
-    model slaq_a = race;
-    means race / tukey cldiff;
-    title "SLAQ by Race";
-run;
+proc glm data=leap_long_final;
+  where visit_index=1 and complete=1;
+  class race;
+  model slaq_a = race;
+  lsmeans race / pdiff=all adjust=tukey cl;
+  title "SLAQ by Race (GLM with Tukey)";
+run; quit;
 
-*/Multivariate Analysis;
-
+/* ===========================
+   3. Multivariate Models
+   =========================== */
 ods excel options(sheet_name="3_Multivariate" sheet_interval='proc');
 
 proc glm data=leap_long_final;
-    where visit_index=1 and complete=1;
-    class race relstat insurance working educat sex;
-    model slaq_a = vers_avg / solution;
-    title "Model 1: Unadjusted Association";
-run;
+  where visit_index=1 and complete=1;
+  class race relstat insurance working educat sex;
+  model slaq_a = vers_avg;
+  title "Model 1: Unadjusted Association";
+run; quit;
 
 proc glm data=leap_long_final;
-    where visit_index=1 and complete=1;
-    class race relstat insurance working educat sex;
-    model slaq_a = vers_avg race sex age relstat / solution;
-    title "Model 2: + Demographics";
-run;
+  where visit_index=1 and complete=1;
+  class race relstat insurance working educat sex;
+  model slaq_a = vers_avg race sex age relstat;
+  title "Model 2: + Demographics";
+run; quit;
 
 proc glm data=leap_long_final;
-    where visit_index=1 and complete=1;
-    class race relstat insurance working educat sex;
-    model slaq_a = vers_avg race sex age relstat working hhinc educat / solution;
-    title "Model 3: + Socioeconomic Factors";
-run;
+  where visit_index=1 and complete=1;
+  class race relstat insurance working educat sex;
+  model slaq_a = vers_avg race sex age relstat working hhinc educat / solution;
+  title "Model 3: + Socioeconomic Factors";
+run; quit;
+
 
 proc glm data=leap_long_final;
-    where visit_index=1 and complete=1;
-    class race relstat insurance working educat sex;
-    model slaq_a = vers_avg race sex age relstat working hhinc educat 
-                   diag_yrs insurance bild_sum / solution;
-    title "Model 4: Full Model";
-run;
+  where visit_index=1 and complete=1;
+  class race relstat insurance working educat sex;
+  model slaq_a = vers_avg race sex age relstat working hhinc educat diag_yrs insurance bild_sum / solution;
+  title "Model 4: Full Model";
+run; quit;
 
-*/Pairwise Analysis;
 
+/* ===========================
+   4. Pairwise Change Models
+   =========================== */
 ods excel options(sheet_name="4_Pairwise" sheet_interval='proc');
 
 proc sort data=leap_long_final; by record_id; run;
 
-data baseline;
-    set leap_long_final;
-    where visit_index=1;
-    keep record_id slaq_a vers_avg race sex;
+data baseline; set leap_long_final; where visit_index=1; keep record_id slaq_a vers_avg race sex; run;
+data month1;  set leap_long_final; where visit_index=2; keep record_id slaq_b vers_avg_b; run;
+data month2;  set leap_long_final; where visit_index=3; keep record_id slaq_c vers_avg_c; run;
+
+proc sort data=baseline; by record_id; run;
+proc sort data=month1;  by record_id; run;
+proc sort data=month2;  by record_id; run;
+
+data wide;
+  merge baseline(in=a) month1 month2;
+  by record_id;
+  if a;
+  /* change scores */
+  slaq_change_1 = slaq_b - slaq_a;
+  slaq_change_2 = slaq_c - slaq_b;
+  slaq_change_3 = slaq_c - slaq_a;
+  vers_change_1 = vers_avg_b - vers_avg;
+  vers_change_2 = vers_avg_c - vers_avg_b;
+  vers_change_3 = vers_avg_c - vers_avg;
 run;
 
-data month1;  
-    set leap_long_final;
-    where visit_index=2;
-    keep record_id slaq_b vers_avg_b;
-run;
-
-data month2;
-    set leap_long_final;  
-    where visit_index=3;
-    keep record_id slaq_c vers_avg_c;
-run;
-
-/* ===== CREATE WITHIN-PERSON MEAN AND TIME VARIABLE ===== */
-/* Create person-level mean of vers_avg across all time points */
-data person_means;
-    set leap_long_final;
-    by record_id;
-    
-    /* Calculate the mean of all available vers_avg values for each person */
-    vers_avg_pm = mean(vers_avg, vers_avg_b, vers_avg_c);
-    
-    /* Keep only one record per person */
-    if first.record_id;
-    keep record_id vers_avg_pm;
-run;
-
-/* Create time variable from completion dates */
-data leap_with_dates;
-    set leap_long_final;
-    
-    /* Convert date strings to SAS date format */
-    baseline_date = input(compress(baseline_complete_date), yymmdd10.);
-    fu1_date = input(compress(date_complete_fu1), yymmdd10.);
-    fu2_date = input(compress(date_complete_fu2), yymmdd10.);
-    
-    /* Create time variable based on visit */
-    if visit_index = 1 then time_days = 0;
-    else if visit_index = 2 then time_days = fu1_date - baseline_date;
-    else if visit_index = 3 then time_days = fu2_date - baseline_date;
-    
-    /* Create time categories */
-    if visit_index = 1 then time_cat = 1;        /* Baseline */
-    else if visit_index = 2 then time_cat = 2;   /* 1 month */
-    else if visit_index = 3 then time_cat = 3;   /* 2 months */
-    
-    label time_days = "Days from baseline"
-          time_cat = "Time category (1=baseline, 2=1month, 3=2months)";
+/* person-mean of exposure */
+proc means data=wide noprint;
+  by record_id;
+  var vers_avg vers_avg_b vers_avg_c;
+  output out=pm (drop=_:) mean=vers_pm;
 run;
 
 data wide;
-    merge baseline month1 month2;
-    by record_id;
-    slaq_change_1 = slaq_b - slaq_a;   
-    slaq_change_2 = slaq_c - slaq_b;   
-    slaq_change_3 = slaq_c - slaq_a;   
-    vers_change_1 = vers_avg_b - vers_avg;   
-    vers_change_2 = vers_avg_c - vers_avg_b; 
-    vers_change_3 = vers_avg_c - vers_avg;   
+  merge wide pm;
+  by record_id;
 run;
+
+/* Pairwise regressions with person-mean control */
+proc glm data=wide;
+  where race=1 and sex=1;
+  model slaq_change_1 = vers_change_1 vers_pm / solution;
+  title "Pairwise: Baseline?30d with person-mean control (Black women)";
+run; quit;
 
 proc glm data=wide;
-    model slaq_change_1 = vers_change_1 / solution;
-    title "Pairwise Analysis: Baseline to 30-day";
-    where race= 1 and sex=1;
-run;
+  where race=1 and sex=1;
+  model slaq_change_2 = vers_change_2 vers_pm / solution;
+  title "Pairwise: 30d?60d with person-mean control (Black women)";
+run; quit;
 
 proc glm data=wide;
-    model slaq_change_2 = vers_change_2 / solution;
-    title "Pairwise Analysis: 30-day to 60-day";
-    where race= 1 and sex=1;
-run;
+  where race=1 and sex=1;
+  model slaq_change_3 = vers_change_3 vers_pm / solution;
+  title "Pairwise: Baseline?60d with person-mean control (Black women)";
+run; quit;
 
-proc glm data=wide;
-    model slaq_change_3 = vers_change_3 / solution;
-    title "Pairwise Analysis: Baseline to 60-day";
-    where race= 1 and sex=1;
-run;
 
-*/Longitudinal analysis;
-
+/* ===========================
+   5. Longitudinal Mixed Model
+   =========================== */
 ods excel options(sheet_name="5_Longitudinal" sheet_interval='proc');
 
+/* Step 1: Construct long-format dataset with time variable */
 data long_model;
-    set leap_long_final;
-    /* standardize SLAQ variable across visits */
-    if visit_index=1 then do; slaq_score=slaq_a; vers_score=vers_avg; end;
-    else if visit_index=2 then do; slaq_score=slaq_b; vers_score=vers_avg_b; end;
-    else if visit_index=3 then do; slaq_score=slaq_c; vers_score=vers_avg_c; end;
+  set leap_long_final;
+
+  /* Assign SAS date values directly if already numeric */
+  baseline_date = baseline_complete_date;
+  fu1_date      = date_complete_fu1;
+  fu2_date      = date_complete_fu2;
+
+  /* Assign SLAQ and VERS scores by visit */
+  if visit_index=1 then do;
+    slaq_score = slaq_a;
+    vers_score = vers_avg;
+    time_days = 0;
+  end;
+  else if visit_index=2 then do;
+    slaq_score = slaq_b;
+    vers_score = vers_avg_b;
+    time_days = fu1_date - baseline_date;
+  end;
+  else if visit_index=3 then do;
+    slaq_score = slaq_c;
+    vers_score = vers_avg_c;
+    time_days = fu2_date - baseline_date;
+  end;
 run;
 
-proc mixed data=long_model method=REML;
-    class record_id visit_index;
-    model slaq_score = vers_score visit_index vers_score*visit_index / solution;
-    random intercept / subject=record_id;
-    repeated visit_index / subject=record_id type=un;
-    title "Longitudinal Mixed Model Analysis";
+/* Step 2: Compute person-level mean of vers_score */
+proc means data=long_model noprint;
+  by record_id;
+  var vers_score;
+  output out=pm_long (drop=_:) mean=vers_pm;
 run;
 
-*/ Race Stratified- Black only;
+/* Step 3: Merge and compute within-person deviation */
+data long_model;
+  merge long_model pm_long;
+  by record_id;
+  vers_wi = vers_score - vers_pm;
+run;
 
+/* Step 4: Fit longitudinal mixed model */
+proc mixed data=long_model method=reml;
+  class record_id visit_index;
+  model slaq_score = vers_pm vers_wi time_days vers_wi*time_days / solution ddfm=kr;
+  random intercept time_days / subject=record_id type=un;
+  repeated visit_index / subject=record_id type=cs;
+  title "Longitudinal Mixed Model with Within-Between Decomposition and Continuous Time";
+run;
+
+/* ===========================
+   6. Race-Stratified Analysis
+   =========================== */
 ods excel options(sheet_name="6_RaceStrat" sheet_interval='proc');
 
-proc mixed data=long_model method=REML;
-    where race=1 and sex= 1; 
-    class record_id visit_index sex relstat insurance working educat;
-    model slaq_score = vers_score sex age relstat working hhinc educat diag_yrs insurance bild_sum / solution;
-    random intercept / subject=record_id;
-    repeated visit_index / subject=record_id type=un;
-    title "Race-Stratified Analysis: Black Participants";
+proc mixed data=long_model method=reml;
+  where race=1 and sex=1;
+  class record_id visit_index relstat insurance working educat;
+  model slaq_score = vers_pm vers_wi time_days age diag_yrs hhinc bild_sum / solution ddfm=kr;
+  random intercept / subject=record_id;
+  repeated visit_index / subject=record_id type=cs;
+  title "Race-Stratified Analysis: Black Women with Within-Between Decomposition";
 run;
 
 ods excel close;
