@@ -1,4 +1,5 @@
 /* Edit the following line to reflect the full path to your CSV file */
+/* Original Dataset not included because of HIPPA*/
 dm'log;clear' continue;
 %let csv_file = "C:\Users\lupus_data.csv";
 OPTIONS nofmterr;
@@ -5254,12 +5255,12 @@ proc sort data=merge3_a;
 by record_id;
 run;
 
-data lupus_long_082925;
+data lupus_long;
    set merge1_a merge2_a merge3_a;
 run;
 
 data lupus_long_clean;
-  set leap_long_082925;
+  set leap_long;
   where leap_online_survey_complete NE 0;
 run;
 
@@ -5271,5 +5272,6 @@ data leap_merge;
 merge merge1_a merge2_a merge3_a;
 by record_id;
 run;
+
 
 
