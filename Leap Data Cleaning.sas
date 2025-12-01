@@ -1,5 +1,5 @@
 dm'log;clear' continue;
-LIBNAME abaker "C:\Users\amari\OneDrive - Tulane University\Graduate Courses\ILE\LEAP DATA\Permanent Datasets";
+LIBNAME abaker "C:\Users\amari\LEAP DATA";
 
 data abaker.leap_long_demo;
   set abaker.leap_long_clean;
@@ -595,5 +595,6 @@ data abaker.leap_long_final;
         else vers_cat = 5;
     end;
 run;
+
 
 
