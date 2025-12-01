@@ -1,7 +1,7 @@
 dm'log;clear' continue;
-%let csv_file ="C:\Users\amari\OneDrive - Tulane University\Graduate Courses\ILE\LEAP DATA\LEAPRCT-AmarisLEAPData_DATA_NOHDRS_2025-07-31_0949.csv";
+%let csv_file ="C:\Users\amari\LEAP DATA\LEAPRCT-LEAPData_DATA_NOHDRS_2025-07-31_0949.csv";
 OPTIONS nofmterr;
-libname abaker"C:\Users\amari\OneDrive - Tulane University\Graduate Courses\ILE\LEAP DATA\Permanent Datasets"; 
+libname abaker"C:\Users\amari\LEAP DATA"; 
 proc format;
 	value $redcap_event_name_ 'baseline_arm_1'='Baseline' '30_day_followup_arm_1'='30 day follow-up' 
 		'60_day_followup_arm_1'='60 day follow-up';
@@ -1698,7 +1698,7 @@ run;
 proc contents data = redcap1 varnum;
 run;
 
-%let csv_file = "C:\Users\amari\OneDrive - Tulane University\Graduate Courses\ILE\LEAP DATA\LEAPRCT-AmarisLEAPData_DATA_NOHDRS_2025-08-04_1535.csv";
+%let csv_file = "C:\Users\amari\LEAP DATA\LEAPRCT-LEAPData_DATA_NOHDRS_2025-08-04_1535.csv";
 OPTIONS nofmterr;
 
 
@@ -3370,7 +3370,7 @@ data abaker.redcap2;
 	format racefeared_followup_two racefeared_followup_two.;
 run;
 
-%let csv_file ="C:\Users\amari\OneDrive - Tulane University\Graduate Courses\ILE\LEAP DATA\LEAPRCT-AmarisLEAPData_DATA_NOHDRS_2025-08-04_1536.csv";
+%let csv_file ="C:\Users\amari\LEAP DATA\LEAPRCT-LEAPData_DATA_NOHDRS_2025-08-04_1536.csv";
 
 OPTIONS nofmterr;
 
@@ -5274,4 +5274,5 @@ run;
 data abaker.leap_long_clean;
 set abaker.leap_long_clean;
 run;
+
 
