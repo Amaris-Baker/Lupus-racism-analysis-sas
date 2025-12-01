@@ -1,5 +1,5 @@
 dm'log;clear' continue;
-LIBNAME abaker "C:\Users\amari\LEAP DATA\Permanent Datasets";
+LIBNAME abaker "C:\Users\amari\LEAP DATA";
 OPTIONS nofmterr;
 
 /*
@@ -422,5 +422,6 @@ No significant interaction means the VERS�SLAQ relationship doesn�t change o
 
 
 ods excel close;
+
 
 
