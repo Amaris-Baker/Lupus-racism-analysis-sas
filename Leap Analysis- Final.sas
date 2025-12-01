@@ -1,5 +1,5 @@
 dm'log;clear' continue;
-LIBNAME abaker "C:\Users\amari\OneDrive - Tulane University\Graduate Courses\ILE\LEAP DATA\Permanent Datasets";
+LIBNAME abaker "C:\Users\amari\LEAP DATA\Permanent Datasets";
 OPTIONS nofmterr;
 
 /*
@@ -14,7 +14,7 @@ bild_sum diag_yrs vers_avg hhinc
 Categorical: race relstat insurance working
 educat sex;*/
 
-ods excel file="C:\Users\amari\OneDrive - Tulane University\Graduate Courses\ILE\Data_Analysis_Results.xlsx"
+ods excel file="C:\Users\amari\Data_Analysis_Results.xlsx"
      options(sheet_interval='proc' embedded_titles='yes');
 
 
@@ -422,4 +422,5 @@ No significant interaction means the VERS�SLAQ relationship doesn�t change o
 
 
 ods excel close;
+
 
